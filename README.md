@@ -131,3 +131,7 @@ animateCliqStateMachines(tree, [:x1;:x3], frames=100)
 ```
 
 This example will result in 100 images for both the `:x1` and `:x3` state machines, but note the timestamps are synchronized -- therefore, animations on concurrent state traversal can easily be made with OpenShot or ffmpeg style tools.
+
+# Contribute
+
+Constributions and Issues welcome.

@@ -1,4 +1,4 @@
-name = "FunctonalStateMachine"
+name = "FunctionalStateMachine"
 uuid = "3e9e306e-7e3c-11e9-12d2-8f8f67a2f951"
 keywords = ["state machine"]
 desc = "Functional state machine with stepping and visualization tools."
@@ -10,8 +10,8 @@ DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
-DocStringExtensions = "≤ 0.7"
-Graphs = "≤ 0.10.3"
+DocStringExtensions = "0.7, 0.8, 0.9"
+Graphs = "0.10.3, 0.11, 1"
 julia = "0.7, 1"
 
 [extras]

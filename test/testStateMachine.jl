@@ -1,14 +1,12 @@
 
-
-using IncrementalInference
-import IncrementalInference: emptyState
+using FunctionalStateMachine
 using Test
 
 ## User state functions
 
 function bar!(usrdata)
   println("do bar!")
-  return IncrementalInference.exitStateMachine
+  return FunctionalStateMachine.exitStateMachine
 end
 
 function foo!(usrdata)

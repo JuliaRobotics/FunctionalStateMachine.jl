@@ -1,7 +1,8 @@
 module FunctionalStateMachine
 
 using Dates
-using Require
+using Requires
+using DocStringExtensions
 
 export
   StateMachine,

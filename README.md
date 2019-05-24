@@ -77,6 +77,7 @@ eud = ExampleUserData(randn(10))
 while statemachine(eud, recordhistory=true); end
 
 # draw the state machine
+hist = statemachine.history
 drawStateMachineHistory(hist, show=true)
 ```
 
@@ -88,20 +89,20 @@ The following example function shows several state machines that were run asyncr
     $SIGNATURES
 
 Draw many images in '/tmp/?/csm_%d.png' representing time synchronized state machine
-events for cliques `cliqsyms::Vector{Symbol}`.
+events.
 
 Notes
-- State history must have previously been recorded (stored in tree cliques).
+- State history must have previously been recorded.
 """
-function animateCliqStateMachines(tree::BayesTree, cliqsyms::Vector{Symbol}; frames::Int=100)
+function animateStateMachines(histories::Vector{<:Tuple}; frames::Int=100)
 
   startT = Dates.now()
   stopT = Dates.now()
 
   # get start and stop times across all cliques
   first = true
-  for sym in cliqsyms
-    hist = getCliqSolveHistory(tree, sym)
+  # hist = somestatemachine.history
+  for hist in histories
     if hist[1][1] < startT
       startT = hist[1][1]
     end
@@ -115,10 +116,11 @@ function animateCliqStateMachines(tree::BayesTree, cliqsyms::Vector{Symbol}; fra
 
   # export all figures
   folders = String[]
-  for sym in cliqsyms
-    hist = getCliqSolveHistory(tree, sym)
-    retval = animateStateMachineHistoryByTime(hist, frames=frames, folder="cliq$sym", title="$sym", startT=startT, stopT=stopT)
-    push!(folders, "cliq$sym")
+  count = 0
+  for hist in histories
+    count += 1
+    retval = animateStateMachineHistoryByTime(hist, frames=frames, folder="cliq$count", title="SM-$count", startT=startT, stopT=stopT)
+    push!(folders, "cliq$count")
   end
 
   return folders
@@ -129,3 +131,7 @@ animateCliqStateMachines(tree, [:x1;:x3], frames=100)
 ```
 
 This example will result in 100 images for both the `:x1` and `:x3` state machines, but note the timestamps are synchronized -- therefore, animations on concurrent state traversal can easily be made with OpenShot or ffmpeg style tools.
+
+# Contribute
+
+Constributions and Issues welcome.

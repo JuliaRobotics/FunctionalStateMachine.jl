@@ -86,6 +86,8 @@ drawStateMachineHistory(hist, show=true)
 
 The following example function shows several state machines that were run asyncronously can be synchronously animated:
 ```julia
+using Dates, DocStringExtensions
+
 """
     $SIGNATURES
 
@@ -127,7 +129,7 @@ function animateStateMachines(histories::Vector{<:Tuple}; frames::Int=100)
   return folders
 end
 
-# animate the time many png images in `/tmp/statemachine`
+# animate the time via many png images in `/tmp`
 animateCliqStateMachines([hist1; hist2], frames=100)
 ```
 
@@ -135,4 +137,4 @@ This example will result in 100 images for both `hist1, hist` state machine hist
 
 # Contribute
 
-Constributions and Issues welcome.
+Contributions and Issues welcome.

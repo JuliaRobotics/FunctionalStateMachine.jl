@@ -13,9 +13,10 @@ sudo apt-get install graphviz
 ```
 
 ## Install Julia Package
-Julia ≥ 0.7 add package (currently unregistered)
+Julia ≥ 0.7 add package
 ```julia
-]dev https://github.com/JuliaRobotics/FunctionalStateMachine.jl.git
+julia> ]
+(v1.0) pkg> add FunctionalStateMachine
 ```
 
 # Example
@@ -35,7 +36,7 @@ function foo!(usrdata)
   return bar!
 end
 
-# no user data struct defined, so just passing Nothing
+# no user data struct defined, so just pass Nothing
 statemachine = StateMachine{Nothing}(next=foo!)
 while statemachine(nothing, verbose=true); end
 
@@ -85,6 +86,8 @@ drawStateMachineHistory(hist, show=true)
 
 The following example function shows several state machines that were run asyncronously can be synchronously animated:
 ```julia
+using Dates, DocStringExtensions
+
 """
     $SIGNATURES
 
@@ -119,19 +122,19 @@ function animateStateMachines(histories::Vector{<:Tuple}; frames::Int=100)
   count = 0
   for hist in histories
     count += 1
-    retval = animateStateMachineHistoryByTime(hist, frames=frames, folder="cliq$count", title="SM-$count", startT=startT, stopT=stopT)
-    push!(folders, "cliq$count")
+    retval = animateStateMachineHistoryByTime(hist, frames=frames, folder="sm$count", title="SM-$count", startT=startT, stopT=stopT)
+    push!(folders, "sm$count")
   end
 
   return folders
 end
 
-# animate the time many png images in `/tmp/statemachine`
-animateCliqStateMachines(tree, [:x1;:x3], frames=100)
+# animate the time via many png images in `/tmp`
+animateCliqStateMachines([hist1; hist2], frames=100)
 ```
 
-This example will result in 100 images for both the `:x1` and `:x3` state machines, but note the timestamps are synchronized -- therefore, animations on concurrent state traversal can easily be made with OpenShot or ffmpeg style tools.
+This example will result in 100 images for both `hist1, hist` state machine history. Note the timestamps are used to synchronize animations images on concurrent state traversals, and can easily be made into a video with OpenShot or ffmpeg style tools.
 
 # Contribute
 
-Constributions and Issues welcome.
+Contributions and Issues welcome.

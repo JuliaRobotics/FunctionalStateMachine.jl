@@ -3,6 +3,7 @@ module FunctionalStateMachine
 using Dates
 using Requires
 using DocStringExtensions
+using ProgressMeter
 
 export
   StateMachine,

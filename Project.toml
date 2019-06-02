@@ -12,6 +12,8 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 DocStringExtensions = "≥ 0.7"
+ProgressMeter = "≥ 0.6"
+Requires = "≥ 0.5.2"
 julia = "0.7, 1"
 
 [extras]

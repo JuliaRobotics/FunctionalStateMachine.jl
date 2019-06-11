@@ -12,6 +12,10 @@ Visualization tools require a system install of `graphviz`.  Do Ubuntu/Debian Li
 sudo apt-get install graphviz
 ```
 
+## Video Animation Example
+
+See [Vimeo here for a short video example](https://vimeo.com/341658405) of a three state machine concurrent animation.
+
 ## Install Julia Package
 Julia ≥ 0.7 add package
 ```julia

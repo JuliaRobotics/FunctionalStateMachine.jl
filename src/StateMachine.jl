@@ -81,7 +81,7 @@ function sandboxStateMachineStep(hist::Vector{Tuple{DateTime, Int, <:Function, T
                                  step::Int  ) where T
   #
   usrdata = deepcopy(hist[step][4])
-  nextfnc = hist[step][3](usrdata)
+  @time nextfnc = hist[step][3](usrdata)
   return (hist[step][1], step+1, nextfnc, usrdata)
 end
 

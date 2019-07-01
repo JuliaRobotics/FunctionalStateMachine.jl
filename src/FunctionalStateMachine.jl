@@ -24,7 +24,8 @@ function __init__()
       histGraphStateMachineTransitions,
       drawStateTransitionStep,
       drawStateMachineHistory,
-      animateStateMachineHistoryByTime
+      animateStateMachineHistoryByTime,
+      animateStateMachineHistoryByTimeCompound
 
     include("StateMachineAnimation.jl")
   end

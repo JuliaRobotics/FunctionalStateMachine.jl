@@ -89,12 +89,12 @@ end
 getStateLabel(state) = Symbol(split(split(string(state), '_')[1],'.')[end])
 
 
-function histStateMachineTransitions(hist::T) where {T <: Array}
+function histStateMachineTransitions(hist::T;
+                                     allStates=Vector{Symbol}(),
+                                     stateVisits = Dict{Symbol, Vector{Symbol}}() ) where {T <: Array}
   # local memory
-  stateVisits = Dict{Symbol, Vector{Symbol}}()
-  allStates = Vector{Symbol}()
 
-  # find all states and transitions
+  # find all states and transitions and add as outgoing vector of edges from state lbl
   for i in 1:(length(hist)-1)
     sta  = string(hist[i][3])
     lbl = getStateLabel(sta)

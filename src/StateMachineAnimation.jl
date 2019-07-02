@@ -199,6 +199,7 @@ function animateStateMachineHistoryByTime(hist::Vector{Tuple{DateTime, Int, <: F
   vg, lookup = histGraphStateMachineTransitions(stateVisits, allStates)
 
   totT = stopT - startT
+  totT *= 1.05
 
   step = 1
   len = length(hist)

@@ -89,7 +89,7 @@ drawStateMachineHistory(hist, show=true)
 
 ## Animate Asyncronous State Machine Transitions
 
-The following example function shows several state machines that were run asyncronously can be synchronously animated:
+The following example function shows several state machines that were run asyncronously can be synchronously animated as separate frames (see below for single frame with multiple information):
 ```julia
 using Dates, DocStringExtensions
 
@@ -139,6 +139,14 @@ animateCliqStateMachines([hist1; hist2], frames=100)
 ```
 
 This example will result in 100 images for both `hist1, hist` state machine history. Note the timestamps are used to synchronize animations images on concurrent state traversals, and can easily be made into a video with OpenShot or ffmpeg style tools.
+
+## Animate Multiple State Machines Together
+
+A closely related function
+```julia
+animateStateMachineHistoryByTime
+```
+can combine multiple concurrent histories of the state machine execution into the same image frames.  See function for more details.
 
 # Contribute
 

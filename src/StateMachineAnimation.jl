@@ -236,7 +236,7 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
 
   # total draw time and step initialization
   totT = stopT - startT
-  totT *= 1.05
+  totT = Millisecond(round(Int, 1.05*totT.value))
   histsteps = ones(Int, length(hists))
 
   # clear any stale state
@@ -245,7 +245,7 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
   # loop across time
   @showprogress "exporting state machine images, $title " for i in 1:frames
     # calc frame time
-    aniT = i/frames*totT + startT
+    aniT = Millisecond(round(Int, i/frames*totT.value)) + startT
 
     # loop over all state machines
     histidx = 0

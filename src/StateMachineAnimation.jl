@@ -199,12 +199,14 @@ function animateStateMachineHistoryByTime(hist::Vector{Tuple{DateTime, Int, <: F
   vg, lookup = histGraphStateMachineTransitions(stateVisits, allStates)
 
   totT = stopT - startT
-  totT *= 1.05
+  totT = Millisecond(round(Int, 1.05*totT.value))
+  # totT *= 1.05
 
   step = 1
   len = length(hist)
   @showprogress "exporting state machine images, $title " for i in 1:frames
-    aniT = i/frames*totT + startT
+    aniT = Millisecond(round(Int, i/frames*totT.value)) + startT
+    # aniT = i/frames*totT + startT
     if hist[step][1] < aniT && step < len
       step += 1
     end
@@ -236,7 +238,7 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
 
   # total draw time and step initialization
   totT = stopT - startT
-  totT *= 1.05
+  totT = Millisecond(round(Int, 1.05*totT.value))
   histsteps = ones(Int, length(hists))
 
   # clear any stale state
@@ -245,7 +247,7 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
   # loop across time
   @showprogress "exporting state machine images, $title " for i in 1:frames
     # calc frame time
-    aniT = i/frames*totT + startT
+    aniT = Millisecond(round(Int, i/frames*totT.value)) + startT
 
     # loop over all state machines
     histidx = 0

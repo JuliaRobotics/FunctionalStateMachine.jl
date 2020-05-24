@@ -8,7 +8,9 @@ Build a state machine in Julia based on functions along with stepping and visual
 
 ## Video Animation Example
 
-See [Vimeo here for a short video example](https://vimeo.com/341658405) of a three state machine concurrent animation.
+Click the Vimeo image as link to a FSM generated video animation of three concurrent state machines.
+
+[![Clique State Machine Concurrent Animation](https://user-images.githubusercontent.com/6412556/82763967-5fdcee80-9dd9-11ea-8233-b9d4fb273eb8.png)](https://vimeo.com/345576689 "Clique State Machine Concurrent Animation - Click to Watch!")
 
 # Installation
 ## [OPTIONAL] System Dependencies

@@ -21,7 +21,8 @@ mutable struct StateMachine{T}
   next::Function
   iter::Int
   history::Vector{Tuple{DateTime, Int, Function, T}}
-  StateMachine{T}(;next=emptyState, iter::Int=0) where T = new{T}(next, iter, Vector{Tuple{DateTime, Int, Function, T}}())
+  name::String
+  StateMachine{T}(;next=emptyState, iter::Int=0, name::AbstractString="") where T = new{T}(next, iter, Vector{Tuple{DateTime, Int, Function, T}}(), name)
 end
 
 """
@@ -46,7 +47,7 @@ function (st::StateMachine{T})(userdata::T=nothing;
                                recordhistory::Bool=false  ) where {T}
   #
   st.iter += 1
-  !verbose ? nothing : println("State machine iter=$(st.iter)")
+  !verbose ? nothing : println("FSM $(st.name), iter=$(st.iter) -- $(st.next)")
   retval = st.next != breakafter && (iterlimit == -1 || st.iter < iterlimit)
   recordhistory ? push!(st.history, (Dates.now(), st.iter, deepcopy(st.next), deepcopy(userdata))) : nothing
   st.next = st.next(userdata)

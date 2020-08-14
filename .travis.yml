@@ -1,27 +1,39 @@
 language: julia
 
-os:
-  - linux
-  - osx
-
 addons:
   apt:
     packages:
     - hdf5-tools
 
+arch:
+  - amd64
+
+os:
+  - linux
+
 julia:
-  - 1.0
   - 1.5
-  - nightly
 
-after_success:
-  - julia -e 'using Pkg; cd(Pkg.dir("FunctionalStateMachine")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-
-# matrix:
 jobs:
+  include:
+    - name: "Legacy, Julia 1.0"
+      julia: 1.0
+    - name: "MASTER AND TAGS"
+    - name: "Julia nightly"
+      julia: nightly
+    - name: "OSX"
+      os: osx
+    - name: "ARM64"
+      arch: arm64
+      # if: NOT branch =~ ^release.*$
+  fast_finish: true
   allow_failures:
     - julia: nightly
-  fast_finish: true
+    # - os: osx
+    # - arch: arm64
 
 notifications:
   email: false
+
+after_success:
+  - julia -e 'using Pkg; cd(Pkg.dir("FunctionalStateMachine")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'

@@ -23,7 +23,7 @@ sudo apt-get install graphviz
 Julia ≥ 0.7 add package
 ```julia
 julia> ]
-(v1.0) pkg> add FunctionalStateMachine
+(v1.5) pkg> add FunctionalStateMachine
 ```
 
 # Example

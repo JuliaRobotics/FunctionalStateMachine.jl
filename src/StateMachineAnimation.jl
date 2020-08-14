@@ -1,4 +1,11 @@
+@info "Adding graph visualization tools."
 
+export
+  histGraphStateMachineTransitions,
+  drawStateTransitionStep,
+  drawStateMachineHistory,
+  animateStateMachineHistoryByTime,
+  animateStateMachineHistoryByTimeCompound
 
 
 """

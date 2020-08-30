@@ -5,7 +5,8 @@ export
   drawStateTransitionStep,
   drawStateMachineHistory,
   animateStateMachineHistoryByTime,
-  animateStateMachineHistoryByTimeCompound
+  animateStateMachineHistoryByTimeCompound,
+  animateStateMachineHistoryIntervalCompound
 
 
 """
@@ -319,17 +320,17 @@ end
 # give the next step, closest in time and that has not previously been added to `prevList`.  
 # Also update prevList
 function getNextStepHist!(hists, 
-                          intuple::Tuple{Symbol, Int, DateTime, DateTime}, 
+                          intuple::Tuple{Symbol, Int, DateTime}, 
                           maxTime::DateTime, 
                           prevList::Dict{Symbol, Vector{Int}} )
   #
   oldId, oldStep, oldT = intuple
 
-  whichId, whichStep, newT = :null, 0, deepcopy(maxTime)
+  whichId, whichStep, newT = :null, 0, maxTime
   for (whId, hist) in hists, (st,hi) in enumerate(hist)
     # make sure all options are populated in previous list tracker
     if !haskey(prevList, whId)  prevList[whId] = Int[]; end
-    if oldT < hi[1] && 0 <= hi[1] - oldT < newT && 
+    if oldT < hi[1] && Millisecond(0) <= (hi[1] - oldT) < (newT-oldT) && 
         !(st in prevList[whId])        # must be a different step than before
       # new closest next step
       whichId = whId
@@ -339,7 +340,7 @@ function getNextStepHist!(hists,
   end
 
   # register this step has previously been taken
-  push!(prevList[whicId], whichStep)
+  push!(prevList[whichId], whichStep)
 
   return whichId, whichStep, newT
 end
@@ -383,7 +384,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
     # which step among the hist fsms is next
     if 1 < stepCount 
       # skip first would-be repeat
-      whId, fsmStep, aniT = getNextStepHist(hists, (whId, fsmStep, aniT), maxTime, prevList)
+      whId, fsmStep, aniT = getNextStepHist!(hists, (whId, fsmStep, aniT), maxTime, prevList)
       latestList[whId] = fsmStep
     end
 

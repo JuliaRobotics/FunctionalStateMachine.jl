@@ -350,8 +350,11 @@ function getNextStepHist!(hists,
 end
 
 
+# for slower movies, use a slower fps
+# run(`ffmpeg -r 10 -i /tmp/caesar/csmCompound/csm_%d.png -c:v libtheora -vf fps=5 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -q 10 /tmp/caesar/csmCompound/out.ogv`)
+# @async run(`totem /tmp/caesar/csmCompound/out.ogv`)
 function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}};
-                                                    interval::Int=15, # frames
+                                                    interval::Int=2, # frames
                                                     # frames::Int=100,
                                                     folder="animatestate",
                                                     title::String="",

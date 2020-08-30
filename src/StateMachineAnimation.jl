@@ -302,6 +302,7 @@ end
 function getFirstStepHist( hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}} ) where T
   startTime = now()
   maxTime = DateTime(0)
+  # NOTE, this whichId=:null is super important to ensure rendering loop can exit properly
   whichId, whichStep = :null, 0
   for (whId, hist) in hists, (st,hi) in enumerate(hist)
     if hi[1] < startTime
@@ -340,6 +341,9 @@ function getNextStepHist!(hists,
   end
 
   # register this step has previously been taken
+  if !haskey(prevList, whichId)  
+    prevList[whichId] = Int[]
+  end
   push!(prevList[whichId], whichStep)
 
   return whichId, whichStep, newT
@@ -391,6 +395,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
     # loop over all state "known" machines
     for (csym, lstep) in latestList
       # modify vg for each history
+      csym == :null ? break : nothing
       lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
       setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",")

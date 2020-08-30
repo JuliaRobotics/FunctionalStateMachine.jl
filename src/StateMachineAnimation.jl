@@ -5,7 +5,8 @@ export
   drawStateTransitionStep,
   drawStateMachineHistory,
   animateStateMachineHistoryByTime,
-  animateStateMachineHistoryByTimeCompound
+  animateStateMachineHistoryByTimeCompound,
+  animateStateMachineHistoryIntervalCompound
 
 
 """
@@ -283,6 +284,141 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
                             timest=string(split(string(aniT),' ')[1]),
                             rmfirst=false  )
     #
+    clearVisGraphAttributes!(vg)
+  end
+
+end
+
+# count the total number of transitions contained in hists
+function getTotalNumberSteps( hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}} ) where T
+  totSteps = 0
+  for (whId, hist) in hists, hi in hist
+    totSteps += 1
+  end
+  return totSteps
+end
+
+# point to the start step among all history steps
+function getFirstStepHist( hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}} ) where T
+  startTime = now()
+  maxTime = DateTime(0)
+  # NOTE, this whichId=:null is super important to ensure rendering loop can exit properly
+  whichId, whichStep = :null, 0
+  for (whId, hist) in hists, (st,hi) in enumerate(hist)
+    if hi[1] < startTime
+      # new starting point indicator
+      whichId = whId
+      whichStep = st
+      startTime = hi[1]
+    end
+    if maxTime < hi[1]
+      maxTime = hi[1]
+    end
+  end
+  return whichId, whichStep, startTime, maxTime
+end
+
+# give the next step, closest in time and that has not previously been added to `prevList`.  
+# Also update prevList
+function getNextStepHist!(hists, 
+                          intuple::Tuple{Symbol, Int, DateTime}, 
+                          maxTime::DateTime, 
+                          prevList::Dict{Symbol, Vector{Int}} )
+  #
+  oldId, oldStep, oldT = intuple
+
+  whichId, whichStep, newT = :null, 0, maxTime
+  for (whId, hist) in hists, (st,hi) in enumerate(hist)
+    # make sure all options are populated in previous list tracker
+    if !haskey(prevList, whId)  prevList[whId] = Int[]; end
+    if oldT < hi[1] && Millisecond(0) <= (hi[1] - oldT) < (newT-oldT) && 
+        !(st in prevList[whId])        # must be a different step than before
+      # new closest next step
+      whichId = whId
+      whichStep = st
+      newT = hi[1]
+    end
+  end
+
+  # register this step has previously been taken
+  if !haskey(prevList, whichId)  
+    prevList[whichId] = Int[]
+  end
+  push!(prevList[whichId], whichStep)
+
+  return whichId, whichStep, newT
+end
+
+
+# for slower movies, use a slower fps
+# run(`ffmpeg -r 10 -i /tmp/caesar/csmCompound/csm_%d.png -c:v libtheora -vf fps=5 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -q 10 /tmp/caesar/csmCompound/out.ogv`)
+# @async run(`totem /tmp/caesar/csmCompound/out.ogv`)
+function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}};
+                                                    interval::Int=2, # frames
+                                                    # frames::Int=100,
+                                                    folder="animatestate",
+                                                    title::String="",
+                                                    show::Bool=false,
+                                                    clearstale::Bool=true,
+                                                    rmfirst::Bool=true  ) where T
+  #
+  # Dict{Symbol, Vector{Symbol}}
+  stateVisits = Dict{Symbol, Vector{Symbol}}()
+  allStates = Vector{Symbol}()
+  for (csym,hist) in hists
+    stateVisits, allStates = histStateMachineTransitions(hist,allStates=allStates, stateVisits=stateVisits  )
+  end
+
+  #
+  vg, lookup = histGraphStateMachineTransitions(stateVisits, allStates)
+
+  # total draw time and step initialization
+  # totT = stopT - startT
+  # totT = Millisecond(round(Int, 1.05*totT.value))
+  # histsteps = ones(Int, length(hists))
+
+  # clear any stale state
+  clearstale ? clearVisGraphAttributes!(vg) : nothing
+
+  totSteps = getTotalNumberSteps(hists)
+  whId, fsmStep, aniT, maxTime = getFirstStepHist(hists)
+  prevList = Dict{Symbol, Vector{Int}}()
+  latestList = Dict{Symbol, Int}(whId => fsmStep)
+
+  frameCount = 0
+  # loop across time
+  @showprogress "exporting state machine images, $title " for stepCount in 1:totSteps
+    # which step among the hist fsms is next
+    if 1 < stepCount 
+      # skip first would-be repeat
+      whId, fsmStep, aniT = getNextStepHist!(hists, (whId, fsmStep, aniT), maxTime, prevList)
+      latestList[whId] = fsmStep
+    end
+
+    # loop over all state "known" machines
+    for (csym, lstep) in latestList
+      # modify vg for each history
+      csym == :null ? break : nothing
+      lbl = getStateLabel(hists[csym][lstep][3])
+      vertid = lookup[lbl]
+      setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",")
+    end
+
+    # and draw as many frames for that setup
+    for itr in 1:interval
+      # increment frame counter
+      frameCount += 1
+      # finally render one frame
+      renderStateMachineFrame(vg,
+                              frameCount,
+                              title=title,
+                              show=false,
+                              folder=folder,
+                              timest=string(split(string(aniT),' ')[1]),
+                              rmfirst=false  )
+      #
+    end
+    # clear current frame in prep for the next interval
     clearVisGraphAttributes!(vg)
   end
 

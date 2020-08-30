@@ -1,5 +1,7 @@
 
 using FunctionalStateMachine
+using Graphs
+using Dates
 using Test
 
 ## User state functions
@@ -49,5 +51,16 @@ while statemachine(nothing, verbose=true); end
 
 end
 
+
+@testset "test recording and rendering of an FSM run" begin
+
+statemachine = StateMachine{Nothing}(next=foo!)
+while statemachine(nothing, recordhistory=true); end
+
+hists = Dict{Symbol,Vector{Tuple{DateTime,Int,Function,Nothing}}}(:first => statemachine.history)
+
+animateStateMachineHistoryIntervalCompound(hists, interval=1)
+
+end
 
 #

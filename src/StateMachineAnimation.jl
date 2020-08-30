@@ -287,3 +287,136 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
   end
 
 end
+
+# count the total number of transitions contained in hists
+function getTotalNumberSteps( hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}} ) where T
+  totSteps = 0
+  for (whId, hist) in hists, hi in hist
+    totSteps += 1
+  end
+  return totSteps
+end
+
+# point to the start step among all history steps
+function getFirstStepHist( hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}} ) where T
+  startTime = now()
+  maxTime = DateTime(0)
+  whichId, whichStep = :null, 0
+  for (whId, hist) in hists, (st,hi) in enumerate(hist)
+    if hi[1] < startTime
+      # new starting point indicator
+      whichId = whId
+      whichStep = st
+      startTime = hi[1]
+    end
+    if maxTime < hi[1]
+      maxTime = hi[1]
+    end
+  end
+  return whichId, whichStep, startTime, maxTime
+
+# give the next step, closest in time and that has not previously been added to `prevList`.  
+# Also update prevList
+function getNextStepHist!(hists, 
+                          intuple::Tuple{Symbol, Int, DateTime, DateTime}, 
+                          maxTime::DateTime, 
+                          prevList::Dict{Symbol, Vector{Int}} )
+  #
+  oldId, oldStep, oldT = intuple
+
+  whichId, whichStep, newT = :null, 0, deepcopy(maxTime)
+  for (whId, hist) in hists, (st,hi) in enumerate(hist)
+    # make sure all options are populated in previous list tracker
+    if !haskey(prevList, whId)  prevList[whId] = Int[]; end
+    if oldT < hi[1] && 0 <= hi[1] - oldT < newT && 
+        !(st in prevList[whId])        # must be a different step than before
+      # new closest next step
+      whichId = whId
+      whichStep = st
+      newT = hi[1]
+    end
+  end
+
+  # register this step has previously been taken
+  push!(prevList[whicId], whichStep)
+
+  return whichId, whichStep, newT
+end
+
+
+function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}};
+                                                    interval::Int=15, # frames
+                                                    # frames::Int=100,
+                                                    folder="animatestate",
+                                                    title::String="",
+                                                    show::Bool=false,
+                                                    clearstale::Bool=true,
+                                                    rmfirst::Bool=true  ) where T
+  #
+  # Dict{Symbol, Vector{Symbol}}
+  stateVisits = Dict{Symbol, Vector{Symbol}}()
+  allStates = Vector{Symbol}()
+  for (csym,hist) in hists
+    stateVisits, allStates = histStateMachineTransitions(hist,allStates=allStates, stateVisits=stateVisits  )
+  end
+
+  #
+  vg, lookup = histGraphStateMachineTransitions(stateVisits, allStates)
+
+  # total draw time and step initialization
+  totT = stopT - startT
+  totT = Millisecond(round(Int, 1.05*totT.value))
+  histsteps = ones(Int, length(hists))
+
+  # clear any stale state
+  clearstale ? clearVisGraphAttributes!(vg) : nothing
+
+  totSteps = getTotalNumberSteps(hists)
+  whId, fsmStep, aniT, maxTime = getFirstStepHist(hists)
+  prevList = Dict{Symbol, Vector{Int}}()
+  latestList = Dict{Sym, Int}(whId => fsmStep)
+
+  frameCount = 0
+  # loop across time
+  for stepCount in 1:totSteps
+    # which step among the hist fsms is next
+    if 1 < stepCount 
+      # skip first would-be repeat
+      whId, fsmStep, aniT = getNextStepHist(hists, (whId, fsmStep, aniT), maxTime, prevList)
+      latestList[whId] = fsmStep
+    end
+
+    # loop over all state "known" machines
+    # histidx = 0
+    for itr in 1:interval, (csym, lstep) in latestList
+      # histidx += 1
+      # step = histsteps[histidx]
+      # len = length(hist)
+      # if hist[step][1] < aniT && step < len
+      #   histsteps[histidx] += 1
+      # end
+      # # redefine after +1
+      # step = histsteps[histidx]
+
+      # modify vg for each history
+      lbl = getStateLabel(hists[csym][step][3])
+      vertid = lookup[lbl]
+      setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",")
+    end
+
+    # increment frame counter
+    frameCount += 1
+
+    # finally render one frame
+    renderStateMachineFrame(vg,
+                            frameCount,
+                            title=title,
+                            show=false,
+                            folder=folder,
+                            timest=string(split(string(aniT),' ')[1]),
+                            rmfirst=false  )
+    #
+    clearVisGraphAttributes!(vg)
+  end
+
+end

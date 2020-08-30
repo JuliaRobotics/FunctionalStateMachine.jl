@@ -4,6 +4,7 @@ addons:
   apt:
     packages:
     - hdf5-tools
+    - graphviz
 
 arch:
   - amd64

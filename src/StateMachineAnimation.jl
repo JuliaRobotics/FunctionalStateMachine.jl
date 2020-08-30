@@ -314,6 +314,7 @@ function getFirstStepHist( hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Fu
     end
   end
   return whichId, whichStep, startTime, maxTime
+end
 
 # give the next step, closest in time and that has not previously been added to `prevList`.  
 # Also update prevList
@@ -364,9 +365,9 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
   vg, lookup = histGraphStateMachineTransitions(stateVisits, allStates)
 
   # total draw time and step initialization
-  totT = stopT - startT
-  totT = Millisecond(round(Int, 1.05*totT.value))
-  histsteps = ones(Int, length(hists))
+  # totT = stopT - startT
+  # totT = Millisecond(round(Int, 1.05*totT.value))
+  # histsteps = ones(Int, length(hists))
 
   # clear any stale state
   clearstale ? clearVisGraphAttributes!(vg) : nothing
@@ -374,11 +375,11 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
   totSteps = getTotalNumberSteps(hists)
   whId, fsmStep, aniT, maxTime = getFirstStepHist(hists)
   prevList = Dict{Symbol, Vector{Int}}()
-  latestList = Dict{Sym, Int}(whId => fsmStep)
+  latestList = Dict{Symbol, Int}(whId => fsmStep)
 
   frameCount = 0
   # loop across time
-  for stepCount in 1:totSteps
+  @showprogress "exporting state machine images, $title " for stepCount in 1:totSteps
     # which step among the hist fsms is next
     if 1 < stepCount 
       # skip first would-be repeat
@@ -387,35 +388,28 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
     end
 
     # loop over all state "known" machines
-    # histidx = 0
-    for itr in 1:interval, (csym, lstep) in latestList
-      # histidx += 1
-      # step = histsteps[histidx]
-      # len = length(hist)
-      # if hist[step][1] < aniT && step < len
-      #   histsteps[histidx] += 1
-      # end
-      # # redefine after +1
-      # step = histsteps[histidx]
-
+    for (csym, lstep) in latestList
       # modify vg for each history
-      lbl = getStateLabel(hists[csym][step][3])
+      lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
       setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",")
     end
 
-    # increment frame counter
-    frameCount += 1
-
-    # finally render one frame
-    renderStateMachineFrame(vg,
-                            frameCount,
-                            title=title,
-                            show=false,
-                            folder=folder,
-                            timest=string(split(string(aniT),' ')[1]),
-                            rmfirst=false  )
-    #
+    # and draw as many frames for that setup
+    for itr in 1:interval
+      # increment frame counter
+      frameCount += 1
+      # finally render one frame
+      renderStateMachineFrame(vg,
+                              frameCount,
+                              title=title,
+                              show=false,
+                              folder=folder,
+                              timest=string(split(string(aniT),' ')[1]),
+                              rmfirst=false  )
+      #
+    end
+    # clear current frame in prep for the next interval
     clearVisGraphAttributes!(vg)
   end
 

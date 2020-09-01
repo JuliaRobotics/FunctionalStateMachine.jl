@@ -59,10 +59,10 @@ function renderStateMachineFrame(vg,
                                  engine::String="dot",
                                  show::Bool=true,
                                  folder::String="fsm_animation",
+                                 folderpath = "/tmp/$folder/",
                                  timest::String="",
                                  rmfirst::Bool=false  )
   #
-  folderpath = "/tmp/$folder/"
   if rmfirst
     @warn "removing contents of $(folderpath)"
     Base.rm(folderpath, recursive=true, force=true)
@@ -353,14 +353,16 @@ end
 # for slower movies, use a slower fps
 # run(`ffmpeg -r 10 -i /tmp/caesar/csmCompound/csm_%d.png -c:v libtheora -vf fps=5 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -q 10 /tmp/caesar/csmCompound/out.ogv`)
 # @async run(`totem /tmp/caesar/csmCompound/out.ogv`)
+# draw_more_cb(::Tuple, ::Int, ::String)
 function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}};
                                                     interval::Int=2, # frames
                                                     # frames::Int=100,
-                                                    folder="animatestate",
+                                                    folderpath="/tmp/animatestate",
                                                     title::String="",
                                                     show::Bool=false,
                                                     clearstale::Bool=true,
-                                                    rmfirst::Bool=true  ) where T
+                                                    rmfirst::Bool=true,
+                                                    draw_more_cb::Function=(x...)->()  ) where T
   #
   # Dict{Symbol, Vector{Symbol}}
   stateVisits = Dict{Symbol, Vector{Symbol}}()
@@ -397,8 +399,9 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
 
     # loop over all state "known" machines
     for (csym, lstep) in latestList
-      # modify vg for each history
+      # terminate at end of drawing sequence
       csym == :null ? break : nothing
+      # modify vg for each history
       lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
       setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",")
@@ -413,10 +416,13 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
                               frameCount,
                               title=title,
                               show=false,
-                              folder=folder,
+                              folderpath=folderpath,
                               timest=string(split(string(aniT),' ')[1]),
                               rmfirst=false  )
       #
+      # terminate at end of drawing sequence
+      whId == :null ? break : nothing
+      draw_more_cb(hists[whId][fsmStep], frameCount, folderpath)
     end
     # clear current frame in prep for the next interval
     clearVisGraphAttributes!(vg)

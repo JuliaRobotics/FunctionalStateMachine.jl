@@ -238,7 +238,7 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
                                                   show::Bool=false,
                                                   clearstale::Bool=true,
                                                   rmfirst::Bool=true, 
-                                                  vertColors::Dict{Int,String}=Dict{Int,String}(),
+                                                  fsmColors::Dict{Symbol,String}=Dict{Symbol,String}(),
                                                   defaultColor::AbstractString="red"  ) where T
   #
   # Dict{Symbol, Vector{Symbol}}
@@ -279,7 +279,7 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
       # modify vg for each history
       lbl = getStateLabel(hist[step][3])
       vertid = lookup[lbl]
-      vertColor=haskey(vertColors, csym) ? vertColors[csym] : defaultColor
+      vertColor=haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor
       setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",", vertColor=vertColor )
     end
 
@@ -371,7 +371,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
                                                     clearstale::Bool=true,
                                                     rmfirst::Bool=true,
                                                     draw_more_cb::Function=(x...)->(), 
-                                                    vertColors::Dict{Int,String}=Dict{Int,String}(),
+                                                    fsmColors::Dict{Symbol,String}=Dict{Symbol,String}(),
                                                     defaultColor::AbstractString="red"  ) where T
   #
   # Dict{Symbol, Vector{Symbol}}
@@ -414,7 +414,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
       # modify vg for each history
       lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
-      vertColor = haskey(vertColors,csym) ? vertColors[csym] : defaultColor
+      vertColor = haskey(fsmColors,csym) ? fsmColors[csym] : defaultColor
       setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",", vertColor=vertColor )
     end
 

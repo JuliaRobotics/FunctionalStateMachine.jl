@@ -95,9 +95,12 @@ function renderStateMachineFrame(vg,
   return filepath
 end
 
-function setVisGraphOnState!(vg, vertid; xlabel::String="", appendxlabel::String="")
+function setVisGraphOnState!(vg, vertid; 
+                             xlabel::String="", 
+                             appendxlabel::String="", 
+                             vertColor::AbstractString="red" )
   #
-  vg.vertices[vertid].attributes["fillcolor"] = "red"
+  vg.vertices[vertid].attributes["fillcolor"] = vertColor
   vg.vertices[vertid].attributes["style"] = "filled"
   if length(xlabel) > 0
     vg.vertices[vertid].attributes["xlabel"] = xlabel
@@ -128,7 +131,8 @@ function drawStateTransitionStep(hist,
                                  engine::String="dot",
                                  show::Bool=true,
                                  folder::String="",
-                                 frame::Int=step  )
+                                 frame::Int=step,
+                                 vertColor::AbstractString="red"  )
   #
 
   lbl = getStateLabel(hist[step][3])
@@ -143,7 +147,7 @@ function drawStateTransitionStep(hist,
 
   # identify and set the node
   xlabel = length(title) > 0 ? (xlabelbefore != nothing ? xlabelbefore*"," : "")*title : ""
-  setVisGraphOnState!(vg, vertid, xlabel=xlabel)
+  setVisGraphOnState!(vg, vertid, xlabel=xlabel, vertColor=vertColor )
 
   # render state machine frame
   filepath = renderStateMachineFrame(vg,
@@ -170,14 +174,14 @@ end
 
 
 
-function drawStateMachineHistory(hist; show::Bool=false, folder::String="")
+function drawStateMachineHistory(hist; show::Bool=false, folder::String="" )
 
   stateVisits, allStates = histStateMachineTransitions(hist)
 
   vg, lookup = histGraphStateMachineTransitions(stateVisits, allStates)
 
   for i in 1:length(hist)
-    drawStateTransitionStep(hist, i, vg, lookup, folder=folder, show=show)
+    drawStateTransitionStep(hist, i, vg, lookup, folder=folder, show=show  )
   end
 
   return nothing
@@ -200,7 +204,8 @@ function animateStateMachineHistoryByTime(hist::Vector{Tuple{DateTime, Int, <: F
                                           show::Bool=false,
                                           startT=hist[1][1],
                                           stopT=hist[end][1],
-                                          rmfirst::Bool=true  ) where T
+                                          rmfirst::Bool=true, 
+                                          vertColor::AbstractString="red"  ) where T
   #
   stateVisits, allStates = histStateMachineTransitions(hist)
 
@@ -218,7 +223,7 @@ function animateStateMachineHistoryByTime(hist::Vector{Tuple{DateTime, Int, <: F
     if hist[step][1] < aniT && step < len
       step += 1
     end
-    drawStateTransitionStep(hist, step, vg, lookup, title=title, folder=folder, show=show, frame=i)
+    drawStateTransitionStep(hist, step, vg, lookup, title=title, folder=folder, show=show, frame=i, vertColor=vertColor  )
   end
 
   nothing
@@ -232,7 +237,9 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
                                                   title::String="",
                                                   show::Bool=false,
                                                   clearstale::Bool=true,
-                                                  rmfirst::Bool=true  ) where T
+                                                  rmfirst::Bool=true, 
+                                                  fsmColors::Dict{Symbol,String}=Dict{Symbol,String}(),
+                                                  defaultColor::AbstractString="red"  ) where T
   #
   # Dict{Symbol, Vector{Symbol}}
   stateVisits = Dict{Symbol, Vector{Symbol}}()
@@ -272,7 +279,8 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
       # modify vg for each history
       lbl = getStateLabel(hist[step][3])
       vertid = lookup[lbl]
-      setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",")
+      vertColor=haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor
+      setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",", vertColor=vertColor )
     end
 
     # finally render one frame
@@ -362,7 +370,9 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
                                                     show::Bool=false,
                                                     clearstale::Bool=true,
                                                     rmfirst::Bool=true,
-                                                    draw_more_cb::Function=(x...)->()  ) where T
+                                                    draw_more_cb::Function=(x...)->(), 
+                                                    fsmColors::Dict{Symbol,String}=Dict{Symbol,String}(),
+                                                    defaultColor::AbstractString="red"  ) where T
   #
   # Dict{Symbol, Vector{Symbol}}
   stateVisits = Dict{Symbol, Vector{Symbol}}()
@@ -404,7 +414,8 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
       # modify vg for each history
       lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
-      setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",")
+      vertColor = haskey(fsmColors,csym) ? fsmColors[csym] : defaultColor
+      setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",", vertColor=vertColor )
     end
 
     # and draw as many frames for that setup

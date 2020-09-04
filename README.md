@@ -89,6 +89,34 @@ hist = statemachine.history
 drawStateMachineHistory(hist, show=true)
 ```
 
+Multiple state machines can be visualized together
+```julia
+using Graphs, FunctionalStateMachine
+
+#...
+
+# start multiple concurrent FSMs (this is only one)
+## they are likely interdependent
+statemachine = StateMachine{Nothing}(next=foo!)
+while statemachine(nothing, recordhistory=true); end
+
+# add all histories to the `hists::Dict` as follows
+## ths example has userdata of type ::Nothing
+hists = Dict{Symbol,Vector{Tuple{DateTime,Int,Function,Nothing}}}(:first => statemachine.history)
+
+# generate all the images that will make up the video
+animateStateMachineHistoryIntervalCompound(hists, interval=1)
+
+# and convert images to video with ffmpeg as shell command
+fps = 5
+run(`ffmpeg -r 10 -i /tmp/caesar/csmCompound/csm_%d.png -c:v libtheora -vf fps=$fps -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -q 10 /tmp/caesar/csmCompound/out.ogv`)
+@async run(`totem /tmp/caesar/csmCompound/out.ogv`)
+```
+can combine multiple concurrent histories of the state machine execution into the same image frames.  See function for more details.
+
+
+# Lower Level Visualization tools
+
 ## Animate Asyncronous State Machine Transitions
 
 The following example function shows several state machines that were run asyncronously can be synchronously animated as separate frames (see below for single frame with multiple information):
@@ -149,30 +177,6 @@ A closely related function
 animateStateMachineHistoryByTime
 ```
 
-Multiple state machines can be visualized together
-```julia
-using Graphs, FunctionalStateMachine
-
-#...
-
-# start multiple concurrent FSMs (this is only one)
-## they are likely interdependent
-statemachine = StateMachine{Nothing}(next=foo!)
-while statemachine(nothing, recordhistory=true); end
-
-# add all histories to the `hists::Dict` as follows
-## ths example has userdata of type ::Nothing
-hists = Dict{Symbol,Vector{Tuple{DateTime,Int,Function,Nothing}}}(:first => statemachine.history)
-
-# generate all the images that will make up the video
-animateStateMachineHistoryIntervalCompound(hists, interval=1)
-
-# and convert images to video with ffmpeg as shell command
-fps = 5
-run(`ffmpeg -r 10 -i /tmp/caesar/csmCompound/csm_%d.png -c:v libtheora -vf fps=$fps -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -q 10 /tmp/caesar/csmCompound/out.ogv`)
-@async run(`totem /tmp/caesar/csmCompound/out.ogv`)
-```
-can combine multiple concurrent histories of the state machine execution into the same image frames.  See function for more details.
 
 # Contribute
 

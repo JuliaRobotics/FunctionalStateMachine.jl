@@ -36,7 +36,10 @@ function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol}
     lookup[state] = fid
   end
 
+  alledges = []
+
   # add all edges to graph
+  maxtransedge = 0
   count = 0
   for (from, tos) in stateVisits
     for to in tos
@@ -51,18 +54,26 @@ function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol}
           addedge = false 
           # increase penwidth+=1 on that edge
           for ed in Graphs.out_edges(exvf, g)
-            haskey(ed.attributes, "penwidth") ? nothing : (ed.attributes["penwidth"] = 1)
             ed.attributes["penwidth"] += 1
-            ed.attributes["penwidth"] = minimum([maxpenwidth;ed.attributes["penwidth"]])            
+            # ed.attributes["penwidth"] = minimum([maxpenwidth;ed.attributes["penwidth"]])            
+            maxtransedge = maxtransedge < ed.attributes["penwidth"] ? ed.attributes["penwidth"] : maxtransedge
           end
           break
         end
       end
       if addedge
         edge = Graphs.make_edge(g, exvf, exvt)
+        edge.attributes["penwidth"] = 1.0
         Graphs.add_edge!(g, edge)
+        push!(alledges, edge)
       end
     end
+  end
+
+  # normalize edge penwidth to maxpenwidth
+  normwidth = maxtransedge/maxpenwidth
+  for ed in alledges 
+    ed.attributes["penwidth"] = ed.attributes["penwidth"]/normwidth
   end
 
   return g, lookup

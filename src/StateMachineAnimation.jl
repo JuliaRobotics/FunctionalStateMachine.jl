@@ -1,4 +1,4 @@
-@info "Adding graph visualization tools."
+@info "FunctionalStateMachine.jl is adding Graphs.jl related tools (Visualization)."
 
 export
   histGraphStateMachineTransitions,
@@ -8,8 +8,9 @@ export
   animateStateMachineHistoryByTimeCompound,
   animateStateMachineHistoryIntervalCompound
 
-import Graphs: incdict
-incdict(::Type{V}, ::Type{E}; is_directed::Bool = true) where {V,E} = incdict(Dict{Int,V}(), E{V}; is_directed=is_directed)
+# bad import warning
+# import Graphs: incdict
+# incdict(::Type{V}, ::Type{E}; is_directed::Bool = true) where {V,E} = incdict(Dict{Int,V}(), E{V}; is_directed=is_directed)
 
 """
     $SIGNATURES
@@ -20,9 +21,11 @@ according to the contents of parameters passed in.
 Notes:
 - Current implementation repeats duplicate transitions as new edges.
 """
-function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol};maxpenwidth::Int=5)
-
-  g = Graphs.incdict(Graphs.ExVertex,Graphs.ExEdge,is_directed=true)
+function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol};
+                                          maxpenwidth::Real=5, minpenwidth::Real=0.75 )
+  #
+  g = Graphs.incdict(Dict{Int,Graphs.ExVertex}(), Graphs.ExEdge{Graphs.ExVertex}; is_directed=true)
+  # g = Graphs.incdict(Graphs.ExVertex,Graphs.ExEdge,is_directed=true)
   lookup = Dict{Symbol, Int}()
 
   # add all required states as nodes to the visualization graph
@@ -36,7 +39,10 @@ function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol}
     lookup[state] = fid
   end
 
+  alledges = []
+
   # add all edges to graph
+  maxtransedge = 0
   count = 0
   for (from, tos) in stateVisits
     for to in tos
@@ -51,18 +57,27 @@ function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol}
           addedge = false 
           # increase penwidth+=1 on that edge
           for ed in Graphs.out_edges(exvf, g)
-            haskey(ed.attributes, "penwidth") ? nothing : (ed.attributes["penwidth"] = 1)
             ed.attributes["penwidth"] += 1
-            ed.attributes["penwidth"] = minimum([maxpenwidth;ed.attributes["penwidth"]])            
+            # ed.attributes["penwidth"] = minimum([maxpenwidth;ed.attributes["penwidth"]])            
+            maxtransedge = maxtransedge < ed.attributes["penwidth"] ? ed.attributes["penwidth"] : maxtransedge
           end
           break
         end
       end
       if addedge
         edge = Graphs.make_edge(g, exvf, exvt)
+        edge.attributes["penwidth"] = 1.0
         Graphs.add_edge!(g, edge)
+        push!(alledges, edge)
       end
     end
+  end
+
+  # normalize edge penwidth to maxpenwidth
+  normwidth = maxtransedge/maxpenwidth
+  for ed in alledges 
+    ed.attributes["penwidth"] = maximum([minpenwidth; ed.attributes["penwidth"]/normwidth])
+
   end
 
   return g, lookup
@@ -257,7 +272,8 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
                                                   clearstale::Bool=true,
                                                   rmfirst::Bool=true, 
                                                   fsmColors::Dict{Symbol,String}=Dict{Symbol,String}(),
-                                                  defaultColor::AbstractString="red"  ) where T
+                                                  defaultColor::AbstractString="gray",
+                                                  autocolor_cb::Function=(histstep,csym,aniT)->(haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor)  ) where T
   #
   # Dict{Symbol, Vector{Symbol}}
   stateVisits = Dict{Symbol, Vector{Symbol}}()
@@ -297,7 +313,8 @@ function animateStateMachineHistoryByTimeCompound(hists::Dict{Symbol, Vector{Tup
       # modify vg for each history
       lbl = getStateLabel(hist[step][3])
       vertid = lookup[lbl]
-      vertColor=haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor
+      vertColor=autocolor_cb(hist[step], csym, aniT)
+      # vertColor=haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor
       setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",", vertColor=vertColor )
     end
 
@@ -390,7 +407,8 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
                                                     rmfirst::Bool=true,
                                                     draw_more_cb::Function=(x...)->(), 
                                                     fsmColors::Dict{Symbol,String}=Dict{Symbol,String}(),
-                                                    defaultColor::AbstractString="red"  ) where T
+                                                    defaultColor::AbstractString="red",
+                                                    autocolor_cb::Function=(histstep,csym,aniT)->(haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor)  ) where T
   #
   # Dict{Symbol, Vector{Symbol}}
   stateVisits = Dict{Symbol, Vector{Symbol}}()
@@ -432,7 +450,8 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
       # modify vg for each history
       lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
-      vertColor = haskey(fsmColors,csym) ? fsmColors[csym] : defaultColor
+      vertColor=autocolor_cb(hists[csym][lstep], csym, aniT)
+      # vertColor = haskey(fsmColors,csym) ? fsmColors[csym] : defaultColor
       setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",", vertColor=vertColor )
     end
 

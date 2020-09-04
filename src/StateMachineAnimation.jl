@@ -8,6 +8,8 @@ export
   animateStateMachineHistoryByTimeCompound,
   animateStateMachineHistoryIntervalCompound
 
+import Graphs: incdict
+incdict(::Type{V}, ::Type{E}; is_directed::Bool = true) where {V,E} = incdict(Dict{Int,V}(), E{V}; is_directed=is_directed)
 
 """
     $SIGNATURES
@@ -18,9 +20,9 @@ according to the contents of parameters passed in.
 Notes:
 - Current implementation repeats duplicate transitions as new edges.
 """
-function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol})
+function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol};maxpenwidth::Int=5)
 
-  g = Graphs.incdict(Graphs.ExVertex,is_directed=true)
+  g = Graphs.incdict(Graphs.ExVertex,Graphs.ExEdge,is_directed=true)
   lookup = Dict{Symbol, Int}()
 
   # add all required states as nodes to the visualization graph
@@ -41,9 +43,25 @@ function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol}
       count += 1
       exvf = g.vertices[lookup[from]]
       exvt = g.vertices[lookup[to]]
-      # add the edge fom one to the next state
-      edge = Graphs.make_edge(g, exvf, exvt)
-      Graphs.add_edge!(g, edge)
+      # add the edge from one to the next state
+      # TODO, don't add if already there.
+      addedge = true
+      for oun in Graphs.out_neighbors(exvf, g)
+        if oun.index == exvt.index
+          addedge = false 
+          # increase penwidth+=1 on that edge
+          for ed in Graphs.out_edges(exvf, g)
+            haskey(ed.attributes, "penwidth") ? nothing : (ed.attributes["penwidth"] = 1)
+            ed.attributes["penwidth"] += 1
+            ed.attributes["penwidth"] = minimum([maxpenwidth;ed.attributes["penwidth"]])            
+          end
+          break
+        end
+      end
+      if addedge
+        edge = Graphs.make_edge(g, exvf, exvt)
+        Graphs.add_edge!(g, edge)
+      end
     end
   end
 

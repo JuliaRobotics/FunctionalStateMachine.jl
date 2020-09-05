@@ -3,6 +3,9 @@
 [![Build Status](https://travis-ci.org/JuliaRobotics/FunctionalStateMachine.jl.svg?branch=master)](https://travis-ci.org/JuliaRobotics/FunctionalStateMachine.jl)
 [![codecov.io](https://codecov.io/github/JuliaRobotics/FunctionalStateMachine.jl/coverage.svg?branch=master)](https://codecov.io/github/JuliaRobotics/FunctionalStateMachine.jl?branch=master)
 
+[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/JuliaRobotics/FunctionalStateMachine.jl.svg)](https://github.com/JuliaRobotics/FunctionalStateMachine.jl/issues)
+[![Percentage of issues still open](https://isitmaintained.com/badge/open/JuliaRobotics/FunctionalStateMachine.jl.svg)](https://github.com/JuliaRobotics/FunctionalStateMachine.jl/issues)
+
 Build a state machine in Julia based on functions along with stepping and visualization tools  
 
 

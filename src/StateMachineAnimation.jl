@@ -113,7 +113,7 @@ function renderStateMachineFrame(vg,
   fid = open("$folderpath/dotscript.sh","w")
   str = "head -n `wc -l $dotfile | awk '{print \$1-1}'` $dotfile > $folderpath/tmpdot.dot"
   println(fid, str)
-  println(fid, "echo \"graph [label=\\\"$title, #$step, $(timest)\\\", labelloc=t];\" >> $folderpath/tmpdot.dot")
+  println(fid, "echo \"graph [label=\\\"$title, $(timest)\\\", labelloc=t];\" >> $folderpath/tmpdot.dot")
   println(fid, "echo \"}\" >> $folderpath/tmpdot.dot")
   close(fid)
   run(`chmod u+x $folderpath/dotscript.sh`)
@@ -154,18 +154,18 @@ function clearVisGraphAttributes!(vg)
   nothing
 end
 
-function drawStateTransitionStep(hist,
-                                 step::Int,
-                                 vg,
-                                 lookup::Dict{Symbol,Int};
-                                 title::String="",
-                                 viewerapp::String="eog",
-                                 fext::String="png",
-                                 engine::String="dot",
-                                 show::Bool=true,
-                                 folder::String="",
-                                 frame::Int=step,
-                                 vertColor::AbstractString="red"  )
+function drawStateTransitionStep( hist,
+                                  step::Int,
+                                  vg,
+                                  lookup::Dict{Symbol,Int};
+                                  title::String="",
+                                  viewerapp::String="eog",
+                                  fext::String="png",
+                                  engine::String="dot",
+                                  show::Bool=true,
+                                  folder::String="",
+                                  frame::Int=step,
+                                  vertColor::AbstractString="red"  )
   #
 
   lbl = getStateLabel(hist[step][3])
@@ -179,7 +179,7 @@ function drawStateTransitionStep(hist,
   # delete!(vert.attributes, "style")
 
   # identify and set the node
-  xlabel = length(title) > 0 ? (xlabelbefore != nothing ? xlabelbefore*"," : "")*title : ""
+  xlabel = length(title) > 0 ? (xlabelbefore !== nothing ? xlabelbefore*"," : "")*title : ""
   setVisGraphOnState!(vg, vertid, xlabel=xlabel, vertColor=vertColor )
 
   # render state machine frame
@@ -196,9 +196,9 @@ function drawStateTransitionStep(hist,
   #
 
   # clean up the vg structure
-  fillcolorbefore == nothing ? delete!(vert.attributes, "fillcolor") : (vert.attributes["fillcolor"]=fillcolorbefore)
-  stylebefore == nothing ? delete!(vert.attributes, "style") : (vert.attributes["style"]=stylebefore)
-  xlabelbefore == nothing ? delete!(vert.attributes, "xlabel") : (vert.attributes["xlabel"]=xlabelbefore)
+  fillcolorbefore === nothing ? delete!(vert.attributes, "fillcolor") : (vert.attributes["fillcolor"]=fillcolorbefore)
+  stylebefore === nothing ? delete!(vert.attributes, "style") : (vert.attributes["style"]=stylebefore)
+  xlabelbefore === nothing ? delete!(vert.attributes, "xlabel") : (vert.attributes["xlabel"]=xlabelbefore)
 
   return filepath
 end
@@ -433,6 +433,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
   prevList = Dict{Symbol, Vector{Int}}()
   latestList = Dict{Symbol, Int}(whId => fsmStep)
 
+  prevT = aniT
   frameCount = 0
   # loop across time
   @showprogress "exporting state machine images, $title " for stepCount in 1:totSteps
@@ -451,18 +452,21 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
       lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
       vertColor=autocolor_cb(hists[csym][lstep], csym, aniT)
+      cid = hists[csym][lstep][4].cliq.index
       # vertColor = haskey(fsmColors,csym) ? fsmColors[csym] : defaultColor
-      setVisGraphOnState!(vg, vertid, appendxlabel=string(csym)*",", vertColor=vertColor )
+      setVisGraphOnState!(vg, vertid, appendxlabel="($(cid).$lstep),", vertColor=vertColor )
     end
 
     # and draw as many frames for that setup
     for itr in 1:interval
       # increment frame counter
       frameCount += 1
+      deltaT = (aniT - prevT).value
+      prevT = aniT
       # finally render one frame
       renderStateMachineFrame(vg,
                               frameCount,
-                              title=title,
+                              title=title*" || dt=$deltaT ms ||",
                               show=false,
                               folderpath=folderpath,
                               timest=string(split(string(aniT),' ')[1]),

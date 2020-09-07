@@ -40,16 +40,22 @@ usrdata = nothing
 while st(usrdata); end
 ```
 """
-function (st::StateMachine{T})(userdata::T=nothing;
-                               breakafter::Function=exitStateMachine,
-                               verbose::Bool=false,
-                               iterlimit::Int=-1,
-                               recordhistory::Bool=false  ) where {T}
+function (st::StateMachine{T})( userdata::T=nothing;
+                                breakafter::Function=exitStateMachine,
+                                verbose::Bool=false,
+                                iterlimit::Int=-1,
+                                recordhistory::Bool=false,
+                                housekeeping_cb::Function=(st)->()  ) where {T}
   #
   st.iter += 1
+  # verbose print to help debugging
   !verbose ? nothing : println("FSM $(st.name), iter=$(st.iter) -- $(st.next)")
+  # early exit plumbing
   retval = st.next != breakafter && (iterlimit == -1 || st.iter < iterlimit)
+  # record steps for later
   recordhistory ? push!(st.history, (Dates.now(), st.iter, deepcopy(st.next), deepcopy(userdata))) : nothing
+  # user has some special situation going on.
+  housekeeping_cb(st)
   st.next = st.next(userdata)
   return retval
 end
@@ -72,6 +78,13 @@ Default function used for exiting any state machine.
 function exitStateMachine(dummy)
   return emptyState
 end
+
+"""
+    $SIGNATURES
+
+How many iterations has this `::StateMachine` stepped through.
+"""
+getIterCount(st::StateMachine) = st.iter
 
 """
   $SIGNATURES

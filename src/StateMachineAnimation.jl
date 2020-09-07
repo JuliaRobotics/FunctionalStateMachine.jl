@@ -84,17 +84,17 @@ function histGraphStateMachineTransitions(stateVisits, allStates::Vector{Symbol}
 end
 
 
-function renderStateMachineFrame(vg,
-                                 frame::Int;
-                                 title::String="",
-                                 viewerapp::String="eog",
-                                 fext::String="png",
-                                 engine::String="dot",
-                                 show::Bool=true,
-                                 folder::String="fsm_animation",
-                                 folderpath = "/tmp/$folder/",
-                                 timest::String="",
-                                 rmfirst::Bool=false  )
+function renderStateMachineFrame( vg,
+                                  frame::Int;
+                                  title::String="",
+                                  viewerapp::String="eog",
+                                  fext::String="png",
+                                  engine::String="dot",
+                                  show::Bool=true,
+                                  folder::String="fsm_animation",
+                                  folderpath = "/tmp/$folder/",
+                                  timest::String="",
+                                  rmfirst::Bool=false  )
   #
   if rmfirst
     @warn "removing contents of $(folderpath)"
@@ -128,10 +128,10 @@ function renderStateMachineFrame(vg,
   return filepath
 end
 
-function setVisGraphOnState!(vg, vertid; 
-                             xlabel::String="", 
-                             appendxlabel::String="", 
-                             vertColor::AbstractString="red" )
+function setVisGraphOnState!( vg, vertid; 
+                              xlabel::String="", 
+                              appendxlabel::String="", 
+                              vertColor::AbstractString="red" )
   #
   vg.vertices[vertid].attributes["fillcolor"] = vertColor
   vg.vertices[vertid].attributes["style"] = "filled"
@@ -183,16 +183,16 @@ function drawStateTransitionStep( hist,
   setVisGraphOnState!(vg, vertid, xlabel=xlabel, vertColor=vertColor )
 
   # render state machine frame
-  filepath = renderStateMachineFrame(vg,
-                                     frame,
-                                     title=title,
-                                     viewerapp=viewerapp,
-                                     fext=fext,
-                                     engine=engine,
-                                     show=show,
-                                     folder=folder,
-                                     timest=string(split(string(hist[step][1]),'T')[end]),
-                                     rmfirst=false)
+  filepath = renderStateMachineFrame( vg,
+                                      frame,
+                                      title=title,
+                                      viewerapp=viewerapp,
+                                      fext=fext,
+                                      engine=engine,
+                                      show=show,
+                                      folder=folder,
+                                      timest=string(split(string(hist[step][1]),'T')[end]),
+                                      rmfirst=false)
   #
 
   # clean up the vg structure
@@ -398,8 +398,8 @@ end
 # @async run(`totem /tmp/caesar/csmCompound/out.ogv`)
 # draw_more_cb(::Tuple, ::Int, ::String)
 function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{Tuple{DateTime, Int, <: Function, T}}};
-                                                    interval::Int=2, # frames
-                                                    # frames::Int=100,
+                                                    easyNames::Dict{Symbol,N}=Dict{Symbol,Nothing}(),
+                                                    interval::Int=2,
                                                     folderpath="/tmp/animatestate",
                                                     title::String="",
                                                     show::Bool=false,
@@ -408,7 +408,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
                                                     draw_more_cb::Function=(x...)->(), 
                                                     fsmColors::Dict{Symbol,String}=Dict{Symbol,String}(),
                                                     defaultColor::AbstractString="red",
-                                                    autocolor_cb::Function=(histstep,csym,aniT)->(haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor)  ) where T
+                                                    autocolor_cb::Function=(histstep,csym,aniT)->(haskey(fsmColors, csym) ? fsmColors[csym] : defaultColor)  ) where {T, N}
   #
   # Dict{Symbol, Vector{Symbol}}
   stateVisits = Dict{Symbol, Vector{Symbol}}()
@@ -452,9 +452,8 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
       lbl = getStateLabel(hists[csym][lstep][3])
       vertid = lookup[lbl]
       vertColor=autocolor_cb(hists[csym][lstep], csym, aniT)
-      cid = hists[csym][lstep][4].cliq.index
-      # vertColor = haskey(fsmColors,csym) ? fsmColors[csym] : defaultColor
-      setVisGraphOnState!(vg, vertid, appendxlabel="($(cid).$lstep),", vertColor=vertColor )
+      easyn = haskey(easyNames, csym) ? easyNames[csym] : csym
+      setVisGraphOnState!(vg, vertid, appendxlabel="($easyn.$lstep),", vertColor=vertColor )
     end
 
     # and draw as many frames for that setup

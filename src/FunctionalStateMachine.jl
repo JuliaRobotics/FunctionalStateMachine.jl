@@ -9,6 +9,7 @@ export
   StateMachine,
   emptyState,
   exitStateMachine,
+  getIterCount,
   sandboxStateMachineStep,
   getStateLabel,
   histStateMachineTransitions

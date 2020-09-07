@@ -89,6 +89,7 @@ function renderStateMachineFrame( vg,
                                   title::String="",
                                   viewerapp::String="eog",
                                   fext::String="png",
+                                  dpi::Int=200,
                                   engine::String="dot",
                                   show::Bool=true,
                                   folder::String="fsm_animation",
@@ -123,7 +124,7 @@ function renderStateMachineFrame( vg,
   run(`mv $folderpath/tmpdot.dot $dotfile`)
 
   # compile output and maybe show to user
-  run(`$(engine) $(dotfile) -T$(fext) -o $(filepath)`)
+  run(`$(engine) $(dotfile) -T$(fext) -Gdpi=$dpi -o $(filepath)`)
   show ? (@async run(`$viewerapp $filepath`)) : nothing
   return filepath
 end
@@ -401,6 +402,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
                                                     easyNames::Dict{Symbol,N}=Dict{Symbol,Nothing}(),
                                                     interval::Int=2,
                                                     folderpath="/tmp/animatestate",
+                                                    dpi::Int=200,
                                                     title::String="",
                                                     show::Bool=false,
                                                     clearstale::Bool=true,
@@ -467,6 +469,7 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
                               frameCount,
                               title=title*" || dt=$deltaT ms ||",
                               show=false,
+                              dpi=dpi,
                               folderpath=folderpath,
                               timest=string(split(string(aniT),' ')[1]),
                               rmfirst=false  )

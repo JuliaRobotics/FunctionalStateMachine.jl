@@ -11,7 +11,7 @@ Build a state machine in Julia based on functions along with stepping and visual
 
 ## Video Animation Example
 
-Click the Vimeo image as link to a FSM generated video animation of three concurrent state machines.
+Click the Vimeo image as link to a FSM generated video animation of six concurrent state machines (as used in [IncrementalInference.jl](http://www.github.com/JuliaRobotics/IncrementalInference.jl)).
 
 [![Clique State Machine Concurrent Animation](https://user-images.githubusercontent.com/6412556/92198487-87b10900-ee42-11ea-8674-4a3867a74b65.png)](https://vimeo.com/454616769 "Clique State Machine Concurrent Animation - Click to Watch!")
 

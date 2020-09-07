@@ -92,7 +92,7 @@ hist = statemachine.history
 drawStateMachineHistory(hist, show=true)
 ```
 
-Multiple state machines can be visualized together
+## Multiple state machines can be visualized together
 ```julia
 using Graphs, FunctionalStateMachine
 
@@ -173,7 +173,7 @@ animateCliqStateMachines([hist1; hist2], frames=100)
 
 This example will result in 100 images for both `hist1, hist` state machine history. Note the timestamps are used to synchronize animations images on concurrent state traversals, and can easily be made into a video with OpenShot or ffmpeg style tools.
 
-## Animate Multiple State Machines Together
+## Previous Linear Time Multi-FSM Animation
 
 A closely related function
 ```julia

@@ -44,6 +44,7 @@ function (st::StateMachine{T})( userdata::T=nothing;
                                 breakafter::Function=exitStateMachine,
                                 verbose::Bool=false,
                                 iterlimit::Int=-1,
+                                injectDelayBefore::Union{Nothing,Pair{<:Function, <:Real}}=nothing,
                                 recordhistory::Bool=false,
                                 housekeeping_cb::Function=(st)->()  ) where {T}
   #
@@ -56,6 +57,7 @@ function (st::StateMachine{T})( userdata::T=nothing;
   recordhistory ? push!(st.history, (Dates.now(), st.iter, deepcopy(st.next), deepcopy(userdata))) : nothing
   # user has some special situation going on.
   housekeeping_cb(st)
+  (injectDelayBefore !== nothing && injectDelayBefore[1] == st.next) ? sleep(injectDelayBefore[2]) : nothing
   st.next = st.next(userdata)
   return retval
 end

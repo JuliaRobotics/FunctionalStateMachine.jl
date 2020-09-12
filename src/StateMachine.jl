@@ -46,11 +46,12 @@ function (st::StateMachine{T})( userdata::T=nothing;
                                 iterlimit::Int=-1,
                                 injectDelayBefore::Union{Nothing,Pair{<:Function, <:Real}}=nothing,
                                 recordhistory::Bool=false,
-                                housekeeping_cb::Function=(st)->()  ) where {T}
+                                housekeeping_cb::Function=(st)->(),
+                                fid=stdout  ) where {T}
   #
   st.iter += 1
   # verbose print to help debugging
-  !verbose ? nothing : println("FSM $(st.name), iter=$(st.iter) -- $(st.next)")
+  !verbose ? nothing : println(fid, "FSM $(st.name), iter=$(st.iter) -- $(st.next)")
   # early exit plumbing
   retval = st.next != breakafter && (iterlimit == -1 || st.iter < iterlimit)
   # record steps for later

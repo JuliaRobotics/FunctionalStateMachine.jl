@@ -52,6 +52,29 @@ while statemachine(nothing, verbose=true); end
 end
 
 
+@testset "test watchdog timeout" begin
+
+function longwait(x)
+  @info "starting stagnant function call, but should not see it's end (but watchdog timeout)"
+  while true 
+    print(".")
+    sleep(0.5)
+  end
+  @info "done with longwait"
+  return exitStateMachine
+end
+
+statemachine = StateMachine{Nothing}(next=longwait)
+try
+  while statemachine(nothing, 2.0, verbose=true); end
+catch e
+  @info " watchdog test, successfully caught exception for stagnant FSM step"
+  @test_throws InterruptException throw(e)
+end
+
+end
+
+
 @testset "test recording and rendering of an FSM run" begin
 
 statemachine = StateMachine{Nothing}(next=foo!)

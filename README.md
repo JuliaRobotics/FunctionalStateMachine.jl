@@ -55,6 +55,26 @@ statemachine = StateMachine{Nothing}(next=foo!)
 while statemachine(nothing, iterlimit=1); end
 ```
 
+### Watchdog Timeout
+
+Sometimes it is useful to know that an FSM process will exit, either as intended or by throwing an error on timeout (much like a [Watchdog Timer](https://en.wikipedia.org/wiki/Watchdog_timer)).  FSM uses Base.`InterruptException()` as a method of stopping a task that expires a `timeout::Real` [seconds].  Note, this functionality is not included by default in order to preserve a small memory footprint.  To use the timeout feature simply call the state machine with a timeout duration:
+```julia
+userdata = nothing # any user data of type T
+timeout = 3.0
+while statemachine(userdata, timeout, verbose=true); end
+```
+
+### Recording Verbose Output to File
+
+Experience has shown that when a state machine gets stuck, it is often useful to write the `verbose` steps out to file as a bare minimum guide of where a system might be failing.  This can be done by passing in a `::IOStream` handle into `verbosefid`:
+```julia
+fid = open("/tmp/verboseFSM_001.log","w")
+while statemachine(userdata, verbose=true, verbosefid=fid); end
+close(fid)
+```
+
+This particular structure is choosen so that `@async` or other multithreaded uses of FSM can still write to a common `fid` and also allow the user to `flush(fid)` and `close(fid)` regardless of whether the FSM has stalled.  Might seem "boilerplate-esque", but it's much easier for developers to snuff out bugs in highly complicted interdependent and multithreaded, multi-state-machine architectures.
+
 ## With User Data and History
 
 ```julia

@@ -73,7 +73,7 @@ while statemachine(userdata, verbose=true, verbosefid=fid); end
 close(fid)
 ```
 
-This particular structure is choosen so that `@async` or other multithreaded uses of FSM can still write to a common `fid` and also allow the user to `flush(fid)` and `close(fid)` regardless of whether the FSM has stalled.  Might seem "boilerplate-esque", but it's much easier for developers to snuff out bugs in highly complicted interdependent and multithreaded, multi-state-machine architectures.
+This particular structure is chosen so that `@async` or other multithreaded uses of FSM can still write to a common `fid` and also allow the user to `flush(fid)` and `close(fid)` regardless of whether the FSM has stalled.  Might seem "boilerplate-esque", but it's much easier for developers to snuff out bugs in highly complicted interdependent and multithreaded, multi-state-machine architectures.
 
 ## With User Data and History
 

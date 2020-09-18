@@ -60,6 +60,7 @@ function (st::StateMachine{T})( userdata::T=nothing,
                                 breakafter::Function=exitStateMachine,
                                 verbose::Bool=false,
                                 verbosefid=stdout,
+                                verboseXtra="",
                                 iterlimit::Int=-1,
                                 injectDelayBefore::Union{Nothing,Pair{<:Function, <:Real}}=nothing,
                                 recordhistory::Bool=false,
@@ -67,7 +68,7 @@ function (st::StateMachine{T})( userdata::T=nothing,
   #
   st.iter += 1
   # verbose print to help debugging
-  !verbose ? nothing : println(verbosefid, "FSM $(st.name), iter=$(st.iter) -- $(st.next)")
+  !verbose ? nothing : println(verbosefid, "FSM $(st.name), iter=$(st.iter) -- $(st.next), $(verboseXtra)")
   # early exit plumbing
   retval = st.next != breakafter && (iterlimit == -1 || st.iter < iterlimit)
   # record steps for later

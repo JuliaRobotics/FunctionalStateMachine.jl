@@ -31,7 +31,7 @@ jobs:
   allow_failures:
     - julia: nightly
     - os: osx
-    # - arch: arm64
+    - arch: arm64
 
 notifications:
   email: false

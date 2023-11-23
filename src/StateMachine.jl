@@ -136,6 +136,7 @@ function sandboxStateMachineStep(hist::Vector{Tuple{DateTime, Int, <:Function, T
   return (hist[step][1], step+1, nextfnc, usrdata)
 end
 
+sandboxStateMachineStep(hist::Vector{<:NamedTuple}, step) = sandboxStateMachineStep(values.(hist), step)
 
 getStateLabel(state) = Symbol(split(split(string(state), '_')[1],'.')[end])
 

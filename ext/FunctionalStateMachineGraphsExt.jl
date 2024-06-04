@@ -1,5 +1,7 @@
 module FunctionalStateMachineGraphsExt
 
+using DocStringExtensions
+
 using Graphs
 import FunctionalStateMachine: histGraphStateMachineTransitions, drawStateTransitionStep, drawStateMachineHistory
 import FunctionalStateMachine: animateStateMachineHistoryByTime, animateStateMachineHistoryByTimeCompound, animateStateMachineHistoryIntervalCompound

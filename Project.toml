@@ -8,7 +8,6 @@ version = "0.3.0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
-Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [weakdeps]
 Graphs = "b5cc3c7e-6572-11e9-2517-99fb8daf2f04"
@@ -19,8 +18,7 @@ FunctionalStateMachineGraphsExt = "Graphs"
 [compat]
 DocStringExtensions = "0.7, 0.8, 0.9"
 ProgressMeter = "0.9, 1"
-Requires = "0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 1"
-julia = "0.7, 1"
+julia = "1.9"
 
 [extras]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"

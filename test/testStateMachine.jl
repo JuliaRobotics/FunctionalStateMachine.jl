@@ -82,7 +82,9 @@ while statemachine(nothing, recordhistory=true); end
 
 hists = Dict{Symbol,Vector{Tuple{DateTime,Int,Function,Nothing}}}(:first => statemachine.history)
 
-animateStateMachineHistoryIntervalCompound(hists, interval=1)
+@error "Restore weakdeps animateStateMa... test"
+@test_broken false
+# animateStateMachineHistoryIntervalCompound(hists, interval=1)
 
 end
 

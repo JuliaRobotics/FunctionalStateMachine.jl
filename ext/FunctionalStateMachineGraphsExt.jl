@@ -1,6 +1,7 @@
 module FunctionalStateMachineGraphsExt
 
 using DocStringExtensions
+using ProgressMeter
 
 using Graphs
 import FunctionalStateMachine: histGraphStateMachineTransitions, drawStateTransitionStep, drawStateMachineHistory

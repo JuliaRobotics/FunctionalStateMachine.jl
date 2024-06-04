@@ -1,16 +1,8 @@
-@info "FunctionalStateMachine.jl is adding Graphs.jl related tools (Visualization)."
+module FunctionalStateMachineGraphsExt
 
-export
-  histGraphStateMachineTransitions,
-  drawStateTransitionStep,
-  drawStateMachineHistory,
-  animateStateMachineHistoryByTime,
-  animateStateMachineHistoryByTimeCompound,
-  animateStateMachineHistoryIntervalCompound
-
-# bad import warning
-# import Graphs: incdict
-# incdict(::Type{V}, ::Type{E}; is_directed::Bool = true) where {V,E} = incdict(Dict{Int,V}(), E{V}; is_directed=is_directed)
+using Graphs
+import FunctionalStateMachine: histGraphStateMachineTransitions, drawStateTransitionStep, drawStateMachineHistory
+import FunctionalStateMachine: animateStateMachineHistoryByTime, animateStateMachineHistoryByTimeCompound, animateStateMachineHistoryIntervalCompound
 
 """
     $SIGNATURES
@@ -483,3 +475,6 @@ function animateStateMachineHistoryIntervalCompound(hists::Dict{Symbol, Vector{T
   end
 
 end
+
+
+end # module

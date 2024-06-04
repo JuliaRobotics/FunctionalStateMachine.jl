@@ -5,6 +5,7 @@ on:
     - cron: '30 00 * * *'
   issues:
     types: [opened, reopened]
+  workflow_dispatch:
 
 jobs:
   CompatHelper:

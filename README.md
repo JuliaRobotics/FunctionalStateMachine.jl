@@ -1,6 +1,6 @@
 # FunctionalStateMachine.jl
 
-[![Build Status](https://travis-ci.org/JuliaRobotics/FunctionalStateMachine.jl.svg?branch=master)](https://travis-ci.org/JuliaRobotics/FunctionalStateMachine.jl)
+[![CI](https://github.com/JuliaRobotics/FunctionalStateMachine.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/JuliaRobotics/FunctionalStateMachine.jl/actions/workflows/ci.yml)
 [![codecov.io](https://codecov.io/github/JuliaRobotics/FunctionalStateMachine.jl/coverage.svg?branch=master)](https://codecov.io/github/JuliaRobotics/FunctionalStateMachine.jl?branch=master)
 
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/JuliaRobotics/FunctionalStateMachine.jl.svg)](https://github.com/JuliaRobotics/FunctionalStateMachine.jl/issues)

@@ -10,7 +10,7 @@ DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 
 [weakdeps]
-Graphs = "b5cc3c7e-6572-11e9-2517-99fb8daf2f04"
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 
 [extensions]
 FunctionalStateMachineGraphsExt = "Graphs"
